@@ -3,25 +3,6 @@
 
 constexpr int MOD = 1'000'000'007;
 
-class Matrix{
- public:
-     using vi = std::vector<int64_t>;
-     Matrix(size_t n, size_t m) :
-             _matrix(std::vector(n, vi(m, 0))){}
-
-     const vi& get_row(size_t i) const;
-     int64_t& at(size_t i, size_t j);
-
-     size_t x_size() const;
-     size_t y_size() const;
-
-     Matrix operator* (const Matrix& other) const;
-     Matrix bin_pow(size_t k) const;
-
- private:
-     std::vector<vi> _matrix;
-};
-
 const std::vector<int64_t>& Matrix::get_row(size_t i) const {
     return _matrix.at(i);
 }
