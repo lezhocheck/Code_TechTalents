@@ -2,39 +2,47 @@
 #include <vector>
 
 class Matrix{
- public:
-     using vi = std::vector<int64_t>;
-     Matrix(size_t n, size_t m) :
-             _matrix(std::vector(n, vi(m, 0))){}
+public:
+    using vi = std::vector<int64_t>;
+    Matrix(const size_t n, const size_t m) :
+            matrix_(std::vector(n, vi(m, 0))){}
 
-     const vi& get_row(size_t i) const;
-     // обратиться к элементу с индексами i, j
-     int64_t& at(size_t i, size_t j);
-     // получить глубину матрицы
-     size_t x_size() const;
-     // получить ширину матрицы
-     size_t y_size() const;
+    // получить ряд матрицы
+    const vi& GetRow(const size_t row_number) const;
+    // получить элемент по индексам
+    const int64_t GetElement(const size_t row_number,
+                             const size_t column_number) const;
+    // назначить новое значение элементу по индексам
+    void SetElement(const size_t row_number,
+                    const size_t column_number, const int64_t value);
+    // получить глубину матрицы
+    const size_t GetXSize() const;
+    // получить ширину матрицы
+    const size_t GetYSize() const;
 
-     Matrix operator* (const Matrix& other) const;
-     Matrix bin_pow(size_t k) const;
+    Matrix operator* (const Matrix& other) const;
+    // пвозвести матрицу в степень
+    Matrix ElevateToPower(size_t power) const;
 
- private:
-     std::vector<vi> _matrix;
+private:
+    std::vector<vi> matrix_;
 };
 
 // инициализация матрицы смежности графа
-Matrix create_adj(std::istream& in, int vertices, int edges);
+Matrix InitializeMatrix(std::istream& in, int* power);
+// посчитать ответ
+Matrix Solve(const Matrix& matrix, int power);
 // вывод количества путей заданной длины из 0 вершины
-std::ostream& write_res(std::ostream& out, const Matrix& m);
+std::ostream& WriteResult(std::ostream& out, const Matrix& matrix);
 
-int main(){
+int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
-    int N, M, K;
-    std::cin >> N >> M >> K;
-    Matrix base = create_adj(std::cin, N, M);
-    Matrix res = base.bin_pow(K);
-    write_res(std::cout, res);
+    int power;
+    Matrix base_matrix = InitializeMatrix(std::cin, &power);
+    Matrix result_matrix = Solve(base_matrix, power);
+    WriteResult(std::cout, result_matrix);
     return 0;
 }
+
