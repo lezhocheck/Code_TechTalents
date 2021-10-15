@@ -3,55 +3,33 @@
 
 constexpr int MOD = 1'000'000'007;
 
-class Matrix{
- public:
-     using vi = std::vector<int64_t>;
-     Matrix(const size_t n, const size_t m) :
-             matrix_(std::vector(n, vi(m, 0))){}
-
-     const vi& GetRow(const size_t row_number) const;
-     const int64_t GetElement(const size_t row_number,
-                              const size_t column_number) const;
-     void SetElement(const size_t row_number,
-                     const size_t column_number, const int64_t value);
-
-     const size_t GetXSize() const;
-     const size_t GetYSize() const;
-
-     Matrix operator* (const Matrix& other) const;
-     Matrix ElevateToPower(size_t power) const;
-
- private:
-     std::vector<vi> matrix_;
-};
-
-const std::vector<int64_t>& Matrix::GetRow(const size_t row_number) const {
+const std::vector<int64_t>& Matrix::get_row(const size_t row_number) const {
     return matrix_.at(row_number);
 }
 
-const int64_t Matrix::GetElement(const size_t row_number,
-                                 const size_t column_number) const {
+const int64_t Matrix::get_element(const size_t row_number,
+                                  const size_t column_number) const {
     return matrix_.at(row_number).at(column_number);
 }
 
-void Matrix::SetElement(const size_t row_number,
-                        const size_t column_number, const int64_t value){
+void Matrix::set_element(const size_t row_number,
+                         const size_t column_number, const int64_t value){
     matrix_.at(row_number).at(column_number) = value;
 }
 
-const size_t Matrix::GetXSize() const {
+const size_t Matrix::get_x_size() const {
     return matrix_.size();
 }
 
-const size_t Matrix::GetYSize() const {
+const size_t Matrix::get_y_size() const {
     return matrix_[0].size();
 }
 
 Matrix Matrix::operator* (const Matrix& other) const {
-    size_t x_size = GetXSize();
-    size_t y_size = GetYSize();
-    size_t other_x_size = other.GetXSize();
-    size_t other_y_size = other.GetYSize();
+    size_t x_size = get_x_size();
+    size_t y_size = get_y_size();
+    size_t other_x_size = other.get_x_size();
+    size_t other_y_size = other.get_y_size();
 
     if (y_size != other_x_size) {
         throw std::invalid_argument("Matrices sizes mismatch");
@@ -66,19 +44,19 @@ Matrix Matrix::operator* (const Matrix& other) const {
                 new_element = (new_element + (matrix_[row][k] *
                     other.matrix_[k][column]) % MOD) % MOD;
             }
-            result_matrix.SetElement(row, column, new_element);
+            result_matrix.set_element(row, column, new_element);
         }
     }
     return result_matrix;
 }
 
-Matrix Matrix::ElevateToPower(size_t power) const {
-    size_t x_size = GetXSize();
+Matrix Matrix::elevate_to_power(size_t power) const {
+    size_t x_size = get_x_size();
     Matrix this_matrix = *this;
     Matrix result_matrix(x_size, x_size);
 
     for (size_t row = 0; row < x_size; ++row) {
-        result_matrix.SetElement(row, row, 1);
+        result_matrix.set_element(row, row, 1);
     }
 
     while (power > 0) {
@@ -91,9 +69,9 @@ Matrix Matrix::ElevateToPower(size_t power) const {
     return result_matrix;
 }
 
-Matrix InitializeMatrix(std::istream& in, int* power) {
-    int vertices, edges;
-    in >> vertices >> edges >> *power;
+MatrixPower read(std::istream& in) {
+    int vertices, edges, power;
+    in >> vertices >> edges >> power;
     Matrix result_matrix(vertices, vertices);
 
     for (int edge = 0; edge < edges; ++edge) {
@@ -101,21 +79,21 @@ Matrix InitializeMatrix(std::istream& in, int* power) {
         in >> index_first >> index_second;
         index_first--;
         index_second--;
-        result_matrix.SetElement(index_first, index_second,
-            result_matrix.GetElement(index_first, index_second) + 1);
+        result_matrix.set_element(index_first, index_second,
+            result_matrix.get_element(index_first, index_second) + 1);
     }
 
-    return result_matrix;
+    return {result_matrix, power};
 }
 
-Matrix Solve(const Matrix& matrix, int power) {
-    return matrix.ElevateToPower(power);
+Matrix solve(const MatrixPower& matrix_power) {
+    return matrix_power.matrix.elevate_to_power(matrix_power.power);
 }
 
-std::ostream& WriteResult(std::ostream& out, const Matrix& matrix) {
+std::ostream& write(std::ostream& out, const Matrix& matrix) {
     int64_t answer = 0;
 
-    for (int64_t value : matrix.GetRow(0)){
+    for (int64_t value : matrix.get_row(0)){
         answer += (value % MOD);
     }
 
