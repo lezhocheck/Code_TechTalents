@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 
+const int MOD = 1'000'000'007;
+
 class SquareMatrix{
 public:
     explicit SquareMatrix(const size_t size);
