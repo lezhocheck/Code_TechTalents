@@ -20,17 +20,17 @@ struct VectorPower {
     int power;
 };
 
-VectorPower read(std::istream& in);
-int64_t solve(const VectorPower& vectorPower);
-std::ostream& write(std::ostream& out, const int64_t result);
+VectorPower readMatrixPower(std::istream& in);
+int64_t getFirstRowSum(const VectorPower& vectorPower);
+std::ostream& writeFirstRowSum(std::ostream& out, const int64_t result);
 
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
-    const VectorPower squareMatrixPower = read(std::cin);
-    const int64_t answer = solve(squareMatrixPower);
-    write(std::cout, answer);
+    const VectorPower squareMatrixPower = readMatrixPower(std::cin);
+    const int64_t answer = getFirstRowSum(squareMatrixPower);
+    writeFirstRowSum(std::cout, answer);
 
     return 0;
 }
