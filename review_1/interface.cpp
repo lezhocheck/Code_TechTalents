@@ -31,8 +31,8 @@ int main() {
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     const LabyrinthData labyrinthData = readLabyrinthData(std::cin);
-    const int64_t firstRowSum = getNumberOfPathsFromStart(labyrinthData);
-    writeNumberOfPathsFromStart(std::cout, firstRowSum);
+    const int64_t numberOfPathsFromStart = getNumberOfPathsFromStart(labyrinthData);
+    writeNumberOfPathsFromStart(std::cout, numberOfPathsFromStart);
 
     return 0;
 }
