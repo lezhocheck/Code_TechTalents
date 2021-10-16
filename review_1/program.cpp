@@ -76,7 +76,7 @@ SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
     return resultMatrix;
 }
 
-VectorPower read(std::istream& in) {
+VectorPower readMatrixPower(std::istream& in) {
     int vertices, edges, power;
     in >> vertices >> edges >> power;
     std::vector<std::vector<int64_t>> base(vertices,
@@ -93,7 +93,7 @@ VectorPower read(std::istream& in) {
     return {base, power};
 }
 
-int64_t solve(const VectorPower& vectorPower) {
+int64_t getFirstRowSum(const VectorPower& vectorPower) {
     SquareMatrix matrix(vectorPower.base);
     SquareMatrix powered = matrix.elevateToPower(vectorPower.power);
     int64_t answer = 0;
@@ -105,18 +105,7 @@ int64_t solve(const VectorPower& vectorPower) {
     return (answer % MOD);
 }
 
-std::ostream& write(std::ostream& out, const int64_t result) {
+std::ostream& writeFirstRowSum(std::ostream& out, const int64_t result) {
     out << result << "\n";
     return out;
-}
-
-int main() {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
-    const VectorPower squareMatrixPower = read(std::cin);
-    const int64_t answer = solve(squareMatrixPower);
-    write(std::cout, answer);
-
-    return 0;
 }
