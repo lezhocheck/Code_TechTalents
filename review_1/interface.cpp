@@ -22,17 +22,17 @@ struct LabyrinthData {
     int power;
 };
 
-LabyrinthData readMatrixPower(std::istream& in);
-int64_t getFirstRowSum(const LabyrinthData& vectorPower);
-std::ostream& writeFirstRowSum(std::ostream& out, const int64_t firstRowSum);
+LabyrinthData readLabyrinthData(std::istream& in);
+int64_t getNumberOfPathsFromStart(const LabyrinthData& vectorPower);
+std::ostream& writeNumberOfPathsFromStart(std::ostream& out, const int64_t firstRowSum);
 
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
-    const LabyrinthData squareMatrixPower = readMatrixPower(std::cin);
-    const int64_t firstRowSum = getFirstRowSum(squareMatrixPower);
-    writeFirstRowSum(std::cout, firstRowSum);
+    const LabyrinthData labyrinthData = readLabyrinthData(std::cin);
+    const int64_t firstRowSum = getNumberOfPathsFromStart(labyrinthData);
+    writeNumberOfPathsFromStart(std::cout, firstRowSum);
 
     return 0;
 }
