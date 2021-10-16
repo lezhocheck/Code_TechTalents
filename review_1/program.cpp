@@ -5,13 +5,13 @@ constexpr int MOD = 1'000'000'007;
 
 class SquareMatrix{
  public:
-     SquareMatrix(const size_t size);
-     SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
+     explicit SquareMatrix(const size_t size);
+     explicit SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
 
      SquareMatrix operator* (const SquareMatrix& other) const;
      SquareMatrix elevateToPower(size_t power) const;
 
-     friend std::ostream& write(std::ostream& out, const SquareMatrix& matrix);
+    const std::vector<int64_t>& getRow(const size_t rowNumber) const;
 
  private:
      std::vector<std::vector<int64_t>> matrix_;
@@ -21,6 +21,10 @@ struct VectorPower {
     std::vector<std::vector<int64_t>> base;
     int power;
 };
+
+const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const{
+    return matrix_.at(rowNumber);
+}
 
 SquareMatrix::SquareMatrix(const size_t size) {
     matrix_ = std::vector<std::vector<int64_t>>(size,
@@ -75,7 +79,7 @@ SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
 VectorPower read(std::istream& in) {
     int vertices, edges, power;
     in >> vertices >> edges >> power;
-    std::vector<std::vector<int64_t>> base (vertices,
+    std::vector<std::vector<int64_t>> base(vertices,
         std::vector<int64_t>(vertices, 0));
 
     for (int edge = 0; edge < edges; ++edge) {
@@ -89,18 +93,30 @@ VectorPower read(std::istream& in) {
     return {base, power};
 }
 
-SquareMatrix solve(const VectorPower& vectorPower) {
+int64_t solve(const VectorPower& vectorPower) {
     SquareMatrix matrix(vectorPower.base);
-    return matrix.elevateToPower(vectorPower.power);
-}
-
-std::ostream& write(std::ostream& out, const SquareMatrix& matrix) {
+    SquareMatrix powered = matrix.elevateToPower(vectorPower.power);
     int64_t answer = 0;
 
-    for (int64_t value : matrix.matrix_[0]) {
+    for (int64_t value : powered.getRow(0)) {
         answer += (value % MOD);
     }
 
-    out << answer % MOD << "\n";
+    return (answer % MOD);
+}
+
+std::ostream& write(std::ostream& out, const int64_t result) {
+    out << result << "\n";
     return out;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    const VectorPower squareMatrixPower = read(std::cin);
+    const int64_t answer = solve(squareMatrixPower);
+    write(std::cout, answer);
+
+    return 0;
 }
