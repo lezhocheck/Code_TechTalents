@@ -24,7 +24,7 @@ struct LabyrinthData {
 
 LabyrinthData readLabyrinthData(std::istream& in);
 int64_t getNumberOfPathsFromStart(const LabyrinthData& vectorPower);
-std::ostream& writeNumberOfPathsFromStart(std::ostream& out, const int64_t firstRowSum);
+std::ostream& writeNumberOfPathsFromStart(std::ostream& out, const int64_t value);
 
 int main() {
     std::ios_base::sync_with_stdio(false);
