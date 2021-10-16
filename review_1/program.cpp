@@ -3,97 +3,112 @@
 
 constexpr int MOD = 1'000'000'007;
 
-const std::vector<int64_t>& Matrix::get_row(const size_t row_number) const {
-    return matrix_.at(row_number);
+class SquareMatrix{
+ public:
+     SquareMatrix(const size_t size) {
+         matrix_ = std::vector(size, std::vector<int64_t>(size, 0));
+     }
+     // получить ряд матрицы
+     const std::vector<int64_t>& getRow(const size_t rowNumber) const;
+     // получить элемент по индексам
+     const int64_t getElement(const size_t rowNumber,
+                              const size_t columnNumber) const;
+     // назначить новое значение элементу по индексам
+     void setElement(const size_t rowNumber,
+                     const size_t columnNumber, const int64_t value);
+     SquareMatrix operator* (const SquareMatrix& other) const;
+     // возвести матрицу в степень
+     SquareMatrix elevateToPower(size_t power) const;
+
+ private:
+     std::vector<std::vector<int64_t>> matrix_;
+};
+
+struct SquareMatrixPower {
+    SquareMatrix matrix;
+    int power;
+};
+
+const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const {
+    return matrix_.at(rowNumber);
 }
 
-const int64_t Matrix::get_element(const size_t row_number,
-                                  const size_t column_number) const {
-    return matrix_.at(row_number).at(column_number);
+const int64_t SquareMatrix::getElement(const size_t rowNumber,
+                                       const size_t columnNumber) const {
+    return matrix_.at(rowNumber).at(columnNumber);
 }
 
-void Matrix::set_element(const size_t row_number,
-                         const size_t column_number, const int64_t value){
-    matrix_.at(row_number).at(column_number) = value;
+void SquareMatrix::setElement(const size_t rowNumber,
+                              const size_t columnNumber, const int64_t value){
+    matrix_.at(rowNumber).at(columnNumber) = value;
 }
 
-const size_t Matrix::get_x_size() const {
-    return matrix_.size();
-}
+SquareMatrix SquareMatrix::operator* (const SquareMatrix& other) const {
+    size_t matrixSize = matrix_.size();
+    size_t otherMatrixSize = other.matrix_.size();
 
-const size_t Matrix::get_y_size() const {
-    return matrix_[0].size();
-}
-
-Matrix Matrix::operator* (const Matrix& other) const {
-    size_t x_size = get_x_size();
-    size_t y_size = get_y_size();
-    size_t other_x_size = other.get_x_size();
-    size_t other_y_size = other.get_y_size();
-
-    if (y_size != other_x_size) {
-        throw std::invalid_argument("Matrices sizes mismatch");
+    if (matrixSize != otherMatrixSize) {
+        throw std::invalid_argument("matrices sizes mismatch");
     }
 
-    Matrix result_matrix(x_size, other_y_size);
+    SquareMatrix resultMatrix(matrixSize);
 
-    for (size_t row = 0; row < x_size; ++row) {
-        for (size_t column = 0; column < other_y_size; ++column) {
-            int64_t new_element = 0;
-            for (size_t k = 0; k < x_size; ++k) {
-                new_element = (new_element + (matrix_[row][k] *
+    for (size_t row = 0; row < matrixSize; ++row) {
+        for (size_t column = 0; column < matrixSize; ++column) {
+            int64_t newElement = 0;
+            for (size_t k = 0; k < matrixSize; ++k) {
+                newElement = (newElement + (matrix_[row][k] *
                     other.matrix_[k][column]) % MOD) % MOD;
             }
-            result_matrix.set_element(row, column, new_element);
+            resultMatrix.setElement(row, column, newElement);
         }
     }
-    return result_matrix;
+    return resultMatrix;
 }
 
-Matrix Matrix::elevate_to_power(size_t power) const {
-    size_t x_size = get_x_size();
-    Matrix this_matrix = *this;
-    Matrix result_matrix(x_size, x_size);
-
-    for (size_t row = 0; row < x_size; ++row) {
-        result_matrix.set_element(row, row, 1);
+SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
+    size_t matrixSize = matrix_.size();
+    SquareMatrix thisMatrix = *this;
+    SquareMatrix resultMatrix(matrixSize);
+    for (size_t row = 0; row < matrixSize; ++row) {
+        resultMatrix.setElement(row, row, 1);
     }
 
     while (power > 0) {
         if (power % 2 == 1) {
-            result_matrix = this_matrix * result_matrix;
+            resultMatrix = thisMatrix * resultMatrix;
         }
-        this_matrix = this_matrix * this_matrix;
+        thisMatrix = thisMatrix * thisMatrix;
         power /= 2;
     }
-    return result_matrix;
+    return resultMatrix;
 }
 
-MatrixPower read(std::istream& in) {
+SquareMatrixPower read(std::istream& in) {
     int vertices, edges, power;
     in >> vertices >> edges >> power;
-    Matrix result_matrix(vertices, vertices);
+    SquareMatrix resultMatrix(vertices);
 
     for (int edge = 0; edge < edges; ++edge) {
-        int index_first, index_second;
-        in >> index_first >> index_second;
-        index_first--;
-        index_second--;
-        result_matrix.set_element(index_first, index_second,
-            result_matrix.get_element(index_first, index_second) + 1);
+        int indexFirst, indexSecond;
+        in >> indexFirst >> indexSecond;
+        indexFirst--;
+        indexSecond--;
+        resultMatrix.setElement(indexFirst, indexSecond,
+            resultMatrix.getElement(indexFirst, indexSecond) + 1);
     }
 
-    return {result_matrix, power};
+    return {resultMatrix, power};
 }
 
-Matrix solve(const MatrixPower& matrix_power) {
-    return matrix_power.matrix.elevate_to_power(matrix_power.power);
+SquareMatrix solve(const SquareMatrixPower& squareMatrixPower) {
+    return squareMatrixPower.matrix.elevateToPower(squareMatrixPower.power);
 }
 
-std::ostream& write(std::ostream& out, const Matrix& matrix) {
+std::ostream& write(std::ostream& out, const SquareMatrix& squareMatrix) {
     int64_t answer = 0;
 
-    for (int64_t value : matrix.get_row(0)){
+    for (int64_t value : squareMatrix.getRow(0)){
         answer += (value % MOD);
     }
 
