@@ -5,42 +5,30 @@ constexpr int MOD = 1'000'000'007;
 
 class SquareMatrix{
  public:
-     SquareMatrix(const size_t size) {
-         matrix_ = std::vector(size, std::vector<int64_t>(size, 0));
-     }
-     // получить ряд матрицы
-     const std::vector<int64_t>& getRow(const size_t rowNumber) const;
-     // получить элемент по индексам
-     const int64_t getElement(const size_t rowNumber,
-                              const size_t columnNumber) const;
-     // назначить новое значение элементу по индексам
-     void setElement(const size_t rowNumber,
-                     const size_t columnNumber, const int64_t value);
+     SquareMatrix(const size_t size);
+     SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
+
      SquareMatrix operator* (const SquareMatrix& other) const;
-     // возвести матрицу в степень
      SquareMatrix elevateToPower(size_t power) const;
+
+     friend std::ostream& write(std::ostream& out, const SquareMatrix& matrix);
 
  private:
      std::vector<std::vector<int64_t>> matrix_;
 };
 
-struct SquareMatrixPower {
-    SquareMatrix matrix;
+struct VectorPower {
+    std::vector<std::vector<int64_t>> base;
     int power;
 };
 
-const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const {
-    return matrix_.at(rowNumber);
+SquareMatrix::SquareMatrix(const size_t size) {
+    matrix_ = std::vector<std::vector<int64_t>>(size,
+        std::vector<int64_t>(size, 0));
 }
 
-const int64_t SquareMatrix::getElement(const size_t rowNumber,
-                                       const size_t columnNumber) const {
-    return matrix_.at(rowNumber).at(columnNumber);
-}
-
-void SquareMatrix::setElement(const size_t rowNumber,
-                              const size_t columnNumber, const int64_t value){
-    matrix_.at(rowNumber).at(columnNumber) = value;
+SquareMatrix::SquareMatrix(const std::vector<std::vector<int64_t>>& matrix) {
+    matrix_ = matrix;
 }
 
 SquareMatrix SquareMatrix::operator* (const SquareMatrix& other) const {
@@ -60,7 +48,7 @@ SquareMatrix SquareMatrix::operator* (const SquareMatrix& other) const {
                 newElement = (newElement + (matrix_[row][k] *
                     other.matrix_[k][column]) % MOD) % MOD;
             }
-            resultMatrix.setElement(row, column, newElement);
+            resultMatrix.matrix_[row][column] = newElement;
         }
     }
     return resultMatrix;
@@ -71,7 +59,7 @@ SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
     SquareMatrix thisMatrix = *this;
     SquareMatrix resultMatrix(matrixSize);
     for (size_t row = 0; row < matrixSize; ++row) {
-        resultMatrix.setElement(row, row, 1);
+        resultMatrix.matrix_[row][row] = 1;
     }
 
     while (power > 0) {
@@ -84,31 +72,32 @@ SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
     return resultMatrix;
 }
 
-SquareMatrixPower read(std::istream& in) {
+VectorPower read(std::istream& in) {
     int vertices, edges, power;
     in >> vertices >> edges >> power;
-    SquareMatrix resultMatrix(vertices);
+    std::vector<std::vector<int64_t>> base (vertices,
+        std::vector<int64_t>(vertices, 0));
 
     for (int edge = 0; edge < edges; ++edge) {
         int indexFirst, indexSecond;
         in >> indexFirst >> indexSecond;
         indexFirst--;
         indexSecond--;
-        resultMatrix.setElement(indexFirst, indexSecond,
-            resultMatrix.getElement(indexFirst, indexSecond) + 1);
+        base[indexFirst][indexSecond]++;
     }
 
-    return {resultMatrix, power};
+    return {base, power};
 }
 
-SquareMatrix solve(const SquareMatrixPower& squareMatrixPower) {
-    return squareMatrixPower.matrix.elevateToPower(squareMatrixPower.power);
+SquareMatrix solve(const VectorPower& vectorPower) {
+    SquareMatrix matrix(vectorPower.base);
+    return matrix.elevateToPower(vectorPower.power);
 }
 
-std::ostream& write(std::ostream& out, const SquareMatrix& squareMatrix) {
+std::ostream& write(std::ostream& out, const SquareMatrix& matrix) {
     int64_t answer = 0;
 
-    for (int64_t value : squareMatrix.getRow(0)){
+    for (int64_t value : matrix.matrix_[0]) {
         answer += (value % MOD);
     }
 
