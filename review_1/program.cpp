@@ -115,8 +115,8 @@ int main() {
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
     const LabyrinthData squareMatrixPower = readLabyrinthData(std::cin);
-    const int64_t firstRowSum = getNumberOfPathsFromStart(squareMatrixPower);
-    writeNumberOfPathsFromStart(std::cout, firstRowSum);
+    const int64_t numberOfPathsFromStart = getNumberOfPathsFromStart(squareMatrixPower);
+    writeNumberOfPathsFromStart(std::cout, numberOfPathsFromStart);
 
     return 0;
 }
