@@ -1,7 +1,26 @@
 #include <iostream>
 #include <vector>
 
-const int MOD = 1'000'000'007;
+const int MODULUS = 1'000'000'007;
+
+class SquareMatrix{
+ public:
+     explicit SquareMatrix(const size_t size);
+     explicit SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
+
+     SquareMatrix operator* (const SquareMatrix& other) const;
+     SquareMatrix elevateToPower(size_t power) const;
+
+    const std::vector<int64_t>& getRow(const size_t rowNumber) const;
+
+ private:
+     std::vector<std::vector<int64_t>> matrix_;
+};
+
+struct LabyrinthData {
+    std::vector<std::vector<int64_t>> base;
+    int power;
+};
 
 const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const{
     return matrix_.at(rowNumber);
@@ -31,7 +50,7 @@ SquareMatrix SquareMatrix::operator* (const SquareMatrix& other) const {
             int64_t newElement = 0;
             for (size_t k = 0; k < matrixSize; ++k) {
                 newElement = (newElement + (matrix_[row][k] *
-                    other.matrix_[k][column]) % MOD) % MOD;
+                    other.matrix_[k][column]) % MODULUS) % MODULUS;
             }
             resultMatrix.matrix_[row][column] = newElement;
         }
@@ -57,7 +76,7 @@ SquareMatrix SquareMatrix::elevateToPower(size_t power) const {
     return resultMatrix;
 }
 
-VectorPower readMatrixPower(std::istream& in) {
+LabyrinthData readLabyrinthData(std::istream& in) {
     int vertices, edges, power;
     in >> vertices >> edges >> power;
     std::vector<std::vector<int64_t>> base(vertices,
@@ -74,19 +93,30 @@ VectorPower readMatrixPower(std::istream& in) {
     return {base, power};
 }
 
-int64_t getFirstRowSum(const VectorPower& vectorPower) {
+int64_t getNumberOfPathsFromStart(const LabyrinthData& vectorPower) {
     SquareMatrix matrix(vectorPower.base);
     SquareMatrix powered = matrix.elevateToPower(vectorPower.power);
     int64_t answer = 0;
 
     for (int64_t value : powered.getRow(0)) {
-        answer += (value % MOD);
+        answer += (value % MODULUS);
     }
 
-    return (answer % MOD);
+    return (answer % MODULUS);
 }
 
-std::ostream& writeFirstRowSum(std::ostream& out, const int64_t result) {
-    out << result << "\n";
+std::ostream& writeNumberOfPathsFromStart(std::ostream& out, const int64_t value) {
+    out << value << "\n";
     return out;
+}
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    std::cout.tie(nullptr);
+    const LabyrinthData squareMatrixPower = readLabyrinthData(std::cin);
+    const int64_t firstRowSum = getNumberOfPathsFromStart(squareMatrixPower);
+    writeNumberOfPathsFromStart(std::cout, firstRowSum);
+
+    return 0;
 }
