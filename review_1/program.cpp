@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 
+const int MOD = 1'000'000'007;
+
 const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const{
     return matrix_.at(rowNumber);
 }
