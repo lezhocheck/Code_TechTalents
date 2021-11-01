@@ -2,19 +2,20 @@
 #include <vector>
 
 const int MODULUS = 1'000'000'007;
+const int SHIFT = -1;
 
 class SquareMatrix{
-public:
-    explicit SquareMatrix(const size_t size);
-    explicit SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
+ public:
+     explicit SquareMatrix(const size_t size);
+     explicit SquareMatrix(const std::vector<std::vector<int64_t>>& matrix);
 
-    SquareMatrix operator* (const SquareMatrix& secondMatrix) const;
-    SquareMatrix elevateToPower(size_t power) const;
+     SquareMatrix operator* (const SquareMatrix& secondMatrix) const;
+     SquareMatrix elevateToPower(size_t power) const;
 
     const std::vector<int64_t>& getRow(const size_t rowNumber) const;
 
-private:
-    std::vector<std::vector<int64_t>> matrix_;
+ private:
+     std::vector<std::vector<int64_t>> matrix_;
 };
 
 struct LabyrinthData {
@@ -22,7 +23,11 @@ struct LabyrinthData {
     int pathLength;
 };
 
-const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const{
+const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const {
+    if(rowNumber >= matrix_.size()){
+        throw std::out_of_range("Row was out of range");
+    }
+
     return matrix_.at(rowNumber);
 }
 
@@ -85,8 +90,8 @@ LabyrinthData readLabyrinthData(std::istream& in) {
     for (int edge = 0; edge < edges; ++edge) {
         int indexFirst, indexSecond;
         in >> indexFirst >> indexSecond;
-        indexFirst--;
-        indexSecond--;
+        indexFirst += SHIFT;
+        indexSecond += SHIFT;
         base[indexFirst][indexSecond]++;
     }
 
@@ -97,8 +102,8 @@ int64_t getNumberOfPaths(const LabyrinthData& labyrinthData) {
     SquareMatrix matrix(labyrinthData.labyrinth);
     SquareMatrix powered = matrix.elevateToPower(labyrinthData.pathLength);
     int64_t numberOfPaths = 0;
-
-    for (int64_t value : powered.getRow(0)) {
+    std::vector<int64_t> firstRow = powered.getRow(0);
+    for (int64_t value : firstRow) {
         numberOfPaths += (value % MODULUS);
     }
 
@@ -114,10 +119,9 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
     std::cout.tie(nullptr);
-    const LabyrinthData labyrinthData = readLabyrinthData(std::cin);
-    const int64_t numberOfPaths = getNumberOfPaths(labyrinthData);
+    const LabyrinthData squareMatrixPower = readLabyrinthData(std::cin);
+    const int64_t numberOfPaths = getNumberOfPaths(squareMatrixPower);
     writeNumberOfPaths(std::cout, numberOfPaths);
 
     return 0;
 }
-
