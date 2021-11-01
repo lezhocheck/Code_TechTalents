@@ -24,7 +24,7 @@ struct LabyrinthData {
 };
 
 const std::vector<int64_t>& SquareMatrix::getRow(const size_t rowNumber) const {
-    if(rowNumber >= matrix_.size()){
+    if (rowNumber >= matrix_.size()) {
         throw std::out_of_range("Row was out of range");
     }
 
