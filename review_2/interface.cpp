@@ -29,9 +29,9 @@ private:
 
     std::vector<Set> sets;
 
-    void makeSet(int index);
+    void makeSet(const int index);
     Set* findSet(Set* set);
-    bool merge(Set* firstSet, Set* secondSet, int difference);
+    bool merge(Set* firstSet, Set* secondSet, const int difference);
 };
 
 struct BoxesAndNotes {
