@@ -11,12 +11,12 @@ struct Query {
     int difference;
 };
 
-class DisjointSetUnion{
+class DisjointSetUnion {
 public:
-    explicit DisjointSetUnion(size_t size);
+    explicit DisjointSetUnion(const size_t size);
     bool unionSets(const Query& query);
     size_t size() const;
-    int getDifference(int index);
+    int getDifference(const int index);
 
 private:
     struct Set {
@@ -29,23 +29,23 @@ private:
 
     std::vector<Set> sets;
 
-    void makeSet(int index);
+    void makeSet(const int index);
     Set* findSet(Set* set);
-    bool merge(Set* firstSet, Set* secondSet, int difference);
+    bool merge(Set* firstSet, Set* secondSet, const int difference);
 };
 
-struct BoxesAndNotes{
+struct CoinsDistributionData {
     DisjointSetUnion boxes;
     std::vector<Query> notes;
 };
 
-struct Answer{
+struct DistributionPossibilityResult {
     bool isPossible;
     uint64_t notPossibleAfter;
     std::vector<int> result;
 };
 
-DisjointSetUnion::DisjointSetUnion(size_t size) {
+DisjointSetUnion::DisjointSetUnion(const size_t size) {
     sets = std::vector<Set>(size);
     for (int i = 0; i < size; i++) {
         makeSet(i);
@@ -72,12 +72,12 @@ size_t DisjointSetUnion::size() const {
     return sets.size();
 }
 
-int DisjointSetUnion::getDifference(int index) {
+int DisjointSetUnion::getDifference(const int index) {
     return findSet(&sets.at(index))->differenceWithMinimum -
            sets.at(index).differenceWithParent;
 }
 
-void DisjointSetUnion::makeSet(int index) {
+void DisjointSetUnion::makeSet(const int index) {
     Set* temp = &sets[index];
     temp->parent = &sets[index];
     temp->rank = 0;
@@ -125,23 +125,25 @@ bool DisjointSetUnion::merge(Set* firstSet, Set* secondSet, int difference) {
     return true;
 }
 
-BoxesAndNotes readInput(std::istream& istream) {
+CoinsDistributionData readCoinsDistributionData(std::istream& istream) {
     int boxCount;
     int queriesCount;
     istream >> boxCount >> queriesCount;
-    BoxesAndNotes boxesAndNotes = {DisjointSetUnion(boxCount),
-                                   std::vector<Query>(queriesCount)};
+    CoinsDistributionData coinsDistributionData =
+        {DisjointSetUnion(boxCount),
+        std::vector<Query>(queriesCount)};
     for (int i = 0; i < queriesCount; i++) {
         int firstBox, secondBox, difference;
         istream >> firstBox >> secondBox >> difference;
-        boxesAndNotes.notes[i] = {firstBox, secondBox, difference};
+        coinsDistributionData.notes[i] = {firstBox, secondBox, difference};
     }
-    return boxesAndNotes;
+    return coinsDistributionData;
 }
 
-Answer calculateAnswer(const BoxesAndNotes& boxesAndNotes) {
-    std::vector<Query> queries = boxesAndNotes.notes;
-    DisjointSetUnion boxes = boxesAndNotes.boxes;
+DistributionPossibilityResult getDistributionPossibility(
+        const CoinsDistributionData& coinsDistributionData) {
+    std::vector<Query> queries = coinsDistributionData.notes;
+    DisjointSetUnion boxes = coinsDistributionData.boxes;
     for (size_t i = 0; i < queries.size(); i++) {
         if (!boxes.unionSets({queries[i].secondBox,
                               queries[i].firstBox, queries[i].difference})) {
@@ -149,32 +151,34 @@ Answer calculateAnswer(const BoxesAndNotes& boxesAndNotes) {
         }
     }
 
-    Answer answer{true, 0,
+    DistributionPossibilityResult possibilityResult{true, 0,
         std::vector<int>(boxes.size())};
     for (size_t i = 0; i < boxes.size(); i++) {
-        answer.result[i] = boxes.getDifference(i);
+        possibilityResult.result[i] = boxes.getDifference(i);
     }
-    return answer;
+    return possibilityResult;
 }
 
-void printResult(std::ostream& ostream, const Answer& answer) {
-    if (answer.isPossible) {
+void printPossibilityResult(std::ostream& ostream,
+    const DistributionPossibilityResult& possibilityResult) {
+    if (possibilityResult.isPossible) {
         ostream << POSITIVE_ANSWER << "\n";
-        for (int i : answer.result) {
+        for (int i : possibilityResult.result) {
             ostream << i << " ";
         }
         ostream << "\n";
     } else {
         ostream << NEGATIVE_ANSWER << "\n";
-        ostream << answer.notPossibleAfter << "\n";
+        ostream << possibilityResult.notPossibleAfter << "\n";
     }
 }
 
 int main() {
     std::cin.tie(nullptr);
     std::ios_base::sync_with_stdio(false);
-    const BoxesAndNotes boxesAndNotes = readInput(std::cin);
-    const Answer answer = calculateAnswer(boxesAndNotes);
-    printResult(std::cout, answer);
+    const CoinsDistributionData coinsDistributionData = readCoinsDistributionData(std::cin);
+    const DistributionPossibilityResult possibilityResult =
+            getDistributionPossibility(coinsDistributionData);
+    printPossibilityResult(std::cout, possibilityResult);
     return 0;
 }
