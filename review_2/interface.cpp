@@ -11,12 +11,12 @@ struct Query {
     int difference;
 };
 
-class DisjointSetUnion{
+class DisjointSetUnion {
 public:
-    explicit DisjointSetUnion(size_t size);
+    explicit DisjointSetUnion(const size_t size);
     bool unionSets(const Query& query);
     size_t size() const;
-    int getDifference(int index);
+    int getDifference(const int index);
 
 private:
     struct Set {
@@ -34,12 +34,12 @@ private:
     bool merge(Set* firstSet, Set* secondSet, int difference);
 };
 
-struct BoxesAndNotes{
+struct BoxesAndNotes {
     DisjointSetUnion boxes;
     std::vector<Query> notes;
 };
 
-struct Answer{
+struct Answer {
     bool isPossible;
     uint64_t notPossibleAfter;
     std::vector<int> result;
