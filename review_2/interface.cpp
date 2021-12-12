@@ -34,26 +34,35 @@ private:
     bool merge(Set* firstSet, Set* secondSet, const int difference);
 };
 
-struct BoxesAndNotes {
+struct CoinsDistributionData {
     DisjointSetUnion boxes;
     std::vector<Query> notes;
 };
 
-struct Answer {
+struct DistributionPossibilityResult {
     bool isPossible;
     uint64_t notPossibleAfter;
     std::vector<int> result;
 };
 
-BoxesAndNotes readInput(std::istream& istream);
-Answer calculateAnswer(const BoxesAndNotes& boxesAndNotes);
-void printResult(std::ostream& ostream, const Answer& answer);
+CoinsDistributionData readCoinsDistributionData(std::istream& istream);
+
+DistributionPossibilityResult getDistributionPossibility(
+        const CoinsDistributionData& coinsDistributionData);
+
+void printPossibilityResult(std::ostream& ostream,
+    const DistributionPossibilityResult& possibilityResult);
 
 int main() {
     std::cin.tie(nullptr);
     std::ios_base::sync_with_stdio(false);
-    const BoxesAndNotes boxesAndNotes = readInput(std::cin);
-    const Answer answer = calculateAnswer(boxesAndNotes);
-    printResult(std::cout, answer);
+
+    const CoinsDistributionData coinsDistributionData = readCoinsDistributionData(std::cin);
+
+    const DistributionPossibilityResult possibilityResult =
+            getDistributionPossibility(coinsDistributionData);
+
+    printPossibilityResult(std::cout, possibilityResult);
+
     return 0;
 }
