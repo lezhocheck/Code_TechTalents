@@ -40,7 +40,8 @@ class DisjointSetUnion {
             secondBoxDifferenceWithParent -
             firstBoxDifferenceWithParent;
 
-        const bool mergeResult = merge(firstSetParent, secondSetParent, difference);
+        const bool mergeResult = 
+            merge(firstSetParent, secondSetParent, difference);
         return mergeResult;
     }
 
