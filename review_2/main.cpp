@@ -24,8 +24,8 @@ class DisjointSetUnion {
     }
 
     bool unionSets(const Query& query) {
-        Set* firstSetParent = findSet(&sets[query.firstBox]);
-        Set* secondSetParent = findSet(&sets[query.secondBox]);
+        Set* const firstSetParent = findSet(&sets[query.firstBox]);
+        Set* const secondSetParent = findSet(&sets[query.secondBox]);
         const int secondBoxDifferenceWithParent =
             sets[query.secondBox].differenceWithParent;
         const int firstBoxDifferenceWithParent =
@@ -105,7 +105,7 @@ class DisjointSetUnion {
         }
 
         if (secondSet->isStart) {
-            Set* first = &sets[0];
+            Set* first = &sets.at(0);
             findSet(first);
             if (first->differenceWithParent -
                 first->parent->differenceWithMinimum < 0) {
