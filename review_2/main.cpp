@@ -18,7 +18,7 @@ class DisjointSetUnion {
         for (int i = 0; i < size; i++) {
             makeSet(i);
         }
-        if(size > 0){
+        if (size > 0) {
             sets[0].isStart = true;
         }
     }
