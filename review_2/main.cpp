@@ -5,85 +5,116 @@
 const char POSITIVE_ANSWER[] = "YES";
 const char NEGATIVE_ANSWER[] = "NO";
 
-DisjointSetUnion::DisjointSetUnion(const size_t size) {
-    sets = std::vector<Set>(size);
-    for (int i = 0; i < size; i++) {
-        makeSet(i);
-    }
-    sets[0].isStart = true;
-}
+struct Query {
+    int firstBox;
+    int secondBox;
+    int difference;
+};
 
-bool DisjointSetUnion::unionSets(const Query& query) {
-    Set* firstSetParent = findSet(&sets[query.firstBox]);
-    Set* secondSetParent = findSet(&sets[query.secondBox]);
-    if (firstSetParent == secondSetParent &&
-        sets[query.secondBox].differenceWithParent + query.difference !=
-        sets[query.firstBox].differenceWithParent) {
-        return false;
-    }
-
-    int difference = query.difference +
-                     sets[query.secondBox].differenceWithParent -
-                     sets[query.firstBox].differenceWithParent;
-    return merge(firstSetParent, secondSetParent, difference);
-}
-
-size_t DisjointSetUnion::size() const {
-    return sets.size();
-}
-
-int DisjointSetUnion::getDifference(const int index) {
-    return findSet(&sets.at(index))->differenceWithMinimum -
-           sets.at(index).differenceWithParent;
-}
-
-void DisjointSetUnion::makeSet(const int index) {
-    Set* temp = &sets[index];
-    temp->parent = &sets[index];
-    temp->rank = 0;
-    temp->differenceWithMinimum = 0;
-    temp->differenceWithParent = 0;
-    temp->isStart = false;
-}
-
-DisjointSetUnion::Set* DisjointSetUnion::findSet(Set* set) {
-    if (set != set->parent) {
-        Set* parent = findSet(set->parent);
-        set->differenceWithParent += set->parent->differenceWithParent;
-        set->parent = parent;
-    }
-    return set->parent;
-}
-
-bool DisjointSetUnion::merge(Set* firstSet, Set* secondSet, int difference) {
-    if (firstSet->rank > secondSet->rank) {
-        std::swap(firstSet, secondSet);
-        difference = -difference;
+class DisjointSetUnion {
+ public:
+    explicit DisjointSetUnion(const size_t size) {
+        sets = std::vector<Set>(size);
+        for (int i = 0; i < size; i++) {
+            makeSet(i);
+        }
+        sets[0].isStart = true;
     }
 
-    firstSet->parent = secondSet;
-    if (firstSet->rank == secondSet->rank) {
-        secondSet->rank++;
-    }
-    firstSet->differenceWithParent = difference;
-    secondSet->differenceWithMinimum =
-            std::max(secondSet->differenceWithMinimum,
-                     difference + firstSet->differenceWithMinimum);
-
-    if (firstSet->isStart) {
-        secondSet->isStart = true;
-    }
-
-    if (secondSet->isStart) {
-        Set* first = &sets[0];
-        findSet(first);
-        if (first->differenceWithParent -
-            first->parent->differenceWithMinimum < 0) {
+    bool unionSets(const Query& query) {
+        Set* firstSetParent = findSet(&sets[query.firstBox]);
+        Set* secondSetParent = findSet(&sets[query.secondBox]);
+        if (firstSetParent == secondSetParent &&
+            sets[query.secondBox].differenceWithParent + query.difference !=
+            sets[query.firstBox].differenceWithParent) {
             return false;
         }
+
+        int difference = query.difference +
+                         sets[query.secondBox].differenceWithParent -
+                         sets[query.firstBox].differenceWithParent;
+        return merge(firstSetParent, secondSetParent, difference);
     }
-    return true;
-}
+
+    size_t size() const {
+        return sets.size();
+    }
+
+    int getDifference(const int index) {
+        return findSet(&sets.at(index))->differenceWithMinimum -
+               sets.at(index).differenceWithParent;
+    }
+
+ private:
+    struct Set {
+        Set* parent;
+        int rank;
+        int differenceWithMinimum;
+        int differenceWithParent;
+        bool isStart;
+    };
+
+    std::vector<Set> sets;
+
+    void makeSet(const int index) {
+        Set* temp = &sets[index];
+        temp->parent = &sets[index];
+        temp->rank = 0;
+        temp->differenceWithMinimum = 0;
+        temp->differenceWithParent = 0;
+        temp->isStart = false;
+    }
+
+    Set* findSet(Set* set) {
+        if (set != set->parent) {
+            Set* parent = findSet(set->parent);
+            set->differenceWithParent += set->parent->differenceWithParent;
+            set->parent = parent;
+        }
+        return set->parent;
+    }
+
+    bool merge(Set* firstSet, Set* secondSet, int difference) {
+        if (firstSet->rank > secondSet->rank) {
+            std::swap(firstSet, secondSet);
+            difference = -difference;
+        }
+
+        firstSet->parent = secondSet;
+        if (firstSet->rank == secondSet->rank) {
+            secondSet->rank++;
+        }
+        firstSet->differenceWithParent = difference;
+        secondSet->differenceWithMinimum =
+                std::max(secondSet->differenceWithMinimum,
+                         difference + firstSet->differenceWithMinimum);
+
+        if (firstSet->isStart) {
+            secondSet->isStart = true;
+        }
+
+        if (secondSet->isStart) {
+            Set* first = &sets[0];
+            findSet(first);
+            if (first->differenceWithParent -
+                first->parent->differenceWithMinimum < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+struct CoinsDistributionData {
+    DisjointSetUnion boxes;
+    std::vector<Query> notes;
+};
+
+struct DistributionPossibilityResult {
+    bool isPossible;
+    uint64_t notPossibleAfter;
+    std::vector<int> result;
+};
 
 CoinsDistributionData readCoinsDistributionData(std::istream& istream) {
     int boxCount;
