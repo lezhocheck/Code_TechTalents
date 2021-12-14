@@ -26,9 +26,9 @@ class DisjointSetUnion {
     bool unionSets(const Query& query) {
         Set* firstSetParent = findSet(&sets[query.firstBox]);
         Set* secondSetParent = findSet(&sets[query.secondBox]);
-        int secondBoxDifferenceWithParent =
+        const int secondBoxDifferenceWithParent =
             sets[query.secondBox].differenceWithParent;
-        int firstBoxDifferenceWithParent =
+        const int firstBoxDifferenceWithParent =
             sets[query.firstBox].differenceWithParent;
         if (firstSetParent == secondSetParent &&
             secondBoxDifferenceWithParent + query.difference !=
@@ -36,21 +36,21 @@ class DisjointSetUnion {
             return false;
         }
 
-        int difference = query.difference +
+        const int difference = query.difference +
             secondBoxDifferenceWithParent -
             firstBoxDifferenceWithParent;
 
-        bool mergeResult = merge(firstSetParent, secondSetParent, difference);
+        const bool mergeResult = merge(firstSetParent, secondSetParent, difference);
         return mergeResult;
     }
 
     size_t size() const {
-        size_t size = sets.size();
+        const size_t size = sets.size();
         return size;
     }
 
     int getDifference(const int index) {
-        int findSetResult =
+        const int findSetResult =
             findSet(&sets.at(index))->differenceWithMinimum -
             sets.at(index).differenceWithParent;
         return findSetResult;
@@ -145,7 +145,7 @@ CoinsDistributionData readCoinsDistributionData(std::istream& istream) {
 
 DistributionPossibilityResult getDistributionPossibility(
     const CoinsDistributionData& coinsDistributionData) {
-    std::vector<Query> queries = coinsDistributionData.notes;
+    const std::vector<Query> queries = coinsDistributionData.notes;
     DisjointSetUnion boxes = coinsDistributionData.boxes;
     for (size_t queryIndex = 0; queryIndex < queries.size(); ++queryIndex) {
         if (!boxes.unionSets({queries[queryIndex].secondBox,
