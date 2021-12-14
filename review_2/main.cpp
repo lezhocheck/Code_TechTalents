@@ -12,13 +12,13 @@ struct Query {
 };
 
 class DisjointSetUnion {
-public:
+ public:
     explicit DisjointSetUnion(const size_t size);
     bool unionSets(const Query& query);
     size_t size() const;
     int getDifference(const int index);
 
-private:
+ private:
     struct Set {
         Set* parent;
         int rank;
@@ -132,10 +132,11 @@ CoinsDistributionData readCoinsDistributionData(std::istream& istream) {
     CoinsDistributionData coinsDistributionData =
         {DisjointSetUnion(boxCount),
         std::vector<Query>(queriesCount)};
-    for (int i = 0; i < queriesCount; i++) {
+    for (int queryIndex = 0; queryIndex < queriesCount; queryIndex++) {
         int firstBox, secondBox, difference;
         istream >> firstBox >> secondBox >> difference;
-        coinsDistributionData.notes[i] = {firstBox, secondBox, difference};
+        coinsDistributionData.notes[queryIndex] =
+                {firstBox, secondBox, difference};
     }
     return coinsDistributionData;
 }
@@ -144,17 +145,17 @@ DistributionPossibilityResult getDistributionPossibility(
         const CoinsDistributionData& coinsDistributionData) {
     std::vector<Query> queries = coinsDistributionData.notes;
     DisjointSetUnion boxes = coinsDistributionData.boxes;
-    for (size_t i = 0; i < queries.size(); i++) {
-        if (!boxes.unionSets({queries[i].secondBox,
-                              queries[i].firstBox, queries[i].difference})) {
-            return {false, i + 1};
+    for (size_t queryIndex = 0; queryIndex < queries.size(); queryIndex++) {
+        if (!boxes.unionSets({queries[queryIndex].secondBox,
+            queries[queryIndex].firstBox, queries[queryIndex].difference})) {
+            return {false, queryIndex + 1};
         }
     }
 
     DistributionPossibilityResult possibilityResult{true, 0,
         std::vector<int>(boxes.size())};
-    for (size_t i = 0; i < boxes.size(); i++) {
-        possibilityResult.result[i] = boxes.getDifference(i);
+    for (size_t boxIndex = 0; boxIndex < boxes.size(); boxIndex++) {
+        possibilityResult.result[boxIndex] = boxes.getDifference(boxIndex);
     }
     return possibilityResult;
 }
@@ -163,8 +164,8 @@ void printPossibilityResult(std::ostream& ostream,
     const DistributionPossibilityResult& possibilityResult) {
     if (possibilityResult.isPossible) {
         ostream << POSITIVE_ANSWER << "\n";
-        for (int i : possibilityResult.result) {
-            ostream << i << " ";
+        for (int result : possibilityResult.result) {
+            ostream << result << " ";
         }
         ostream << "\n";
     } else {
@@ -176,7 +177,8 @@ void printPossibilityResult(std::ostream& ostream,
 int main() {
     std::cin.tie(nullptr);
     std::ios_base::sync_with_stdio(false);
-    const CoinsDistributionData coinsDistributionData = readCoinsDistributionData(std::cin);
+    const CoinsDistributionData coinsDistributionData =
+            readCoinsDistributionData(std::cin);
     const DistributionPossibilityResult possibilityResult =
             getDistributionPossibility(coinsDistributionData);
     printPossibilityResult(std::cout, possibilityResult);
