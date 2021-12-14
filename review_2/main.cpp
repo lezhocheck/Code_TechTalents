@@ -26,25 +26,34 @@ class DisjointSetUnion {
     bool unionSets(const Query& query) {
         Set* firstSetParent = findSet(&sets[query.firstBox]);
         Set* secondSetParent = findSet(&sets[query.secondBox]);
+        int secondBoxDifferenceWithParent =
+            sets[query.secondBox].differenceWithParent;
+        int firstBoxDifferenceWithParent =
+            sets[query.firstBox].differenceWithParent;
         if (firstSetParent == secondSetParent &&
-            sets[query.secondBox].differenceWithParent + query.difference !=
-            sets[query.firstBox].differenceWithParent) {
+            secondBoxDifferenceWithParent + query.difference !=
+            firstBoxDifferenceWithParent) {
             return false;
         }
 
         int difference = query.difference +
-                         sets[query.secondBox].differenceWithParent -
-                         sets[query.firstBox].differenceWithParent;
-        return merge(firstSetParent, secondSetParent, difference);
+            secondBoxDifferenceWithParent -
+            firstBoxDifferenceWithParent;
+
+        bool mergeResult = merge(firstSetParent, secondSetParent, difference);
+        return mergeResult;
     }
 
     size_t size() const {
-        return sets.size();
+        size_t size = sets.size();
+        return size;
     }
 
     int getDifference(const int index) {
-        return findSet(&sets.at(index))->differenceWithMinimum -
-               sets.at(index).differenceWithParent;
+        int findSetResult =
+            findSet(&sets.at(index))->differenceWithMinimum -
+            sets.at(index).differenceWithParent;
+        return findSetResult;
     }
 
  private:
@@ -88,8 +97,8 @@ class DisjointSetUnion {
         }
         firstSet->differenceWithParent = difference;
         secondSet->differenceWithMinimum =
-                std::max(secondSet->differenceWithMinimum,
-                         difference + firstSet->differenceWithMinimum);
+            std::max(secondSet->differenceWithMinimum,
+            difference + firstSet->differenceWithMinimum);
 
         if (firstSet->isStart) {
             secondSet->isStart = true;
@@ -129,16 +138,16 @@ CoinsDistributionData readCoinsDistributionData(std::istream& istream) {
         int firstBox, secondBox, difference;
         istream >> firstBox >> secondBox >> difference;
         coinsDistributionData.notes[queryIndex] =
-                {firstBox, secondBox, difference};
+            {firstBox, secondBox, difference};
     }
     return coinsDistributionData;
 }
 
 DistributionPossibilityResult getDistributionPossibility(
-        const CoinsDistributionData& coinsDistributionData) {
+    const CoinsDistributionData& coinsDistributionData) {
     std::vector<Query> queries = coinsDistributionData.notes;
     DisjointSetUnion boxes = coinsDistributionData.boxes;
-    for (size_t queryIndex = 0; queryIndex < queries.size(); queryIndex++) {
+    for (size_t queryIndex = 0; queryIndex < queries.size(); ++queryIndex) {
         if (!boxes.unionSets({queries[queryIndex].secondBox,
             queries[queryIndex].firstBox, queries[queryIndex].difference})) {
             return {false, queryIndex + 1};
@@ -147,7 +156,7 @@ DistributionPossibilityResult getDistributionPossibility(
 
     DistributionPossibilityResult possibilityResult{true, 0,
         std::vector<int>(boxes.size())};
-    for (size_t boxIndex = 0; boxIndex < boxes.size(); boxIndex++) {
+    for (size_t boxIndex = 0; boxIndex < boxes.size(); ++boxIndex) {
         possibilityResult.result[boxIndex] = boxes.getDifference(boxIndex);
     }
     return possibilityResult;
@@ -171,9 +180,9 @@ int main() {
     std::cin.tie(nullptr);
     std::ios_base::sync_with_stdio(false);
     const CoinsDistributionData coinsDistributionData =
-            readCoinsDistributionData(std::cin);
+        readCoinsDistributionData(std::cin);
     const DistributionPossibilityResult possibilityResult =
-            getDistributionPossibility(coinsDistributionData);
+        getDistributionPossibility(coinsDistributionData);
     printPossibilityResult(std::cout, possibilityResult);
     return 0;
 }
