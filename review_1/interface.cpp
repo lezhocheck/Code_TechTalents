@@ -2,6 +2,7 @@
 #include <vector>
 
 const int MODULUS = 1'000'000'007;
+const int SHIFT = -1;
 
 class SquareMatrix{
 public:
