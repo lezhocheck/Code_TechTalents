@@ -1,8 +1,7 @@
 #include <iostream>
 #include <vector>
 
-const int16_t INF = 32000;
-const int16_t SIZE_MULTIPLIER = 4;
+const int16_t INFINITY = 32000;
 const int16_t SHIFT = -1;
 
 enum QueryType {
@@ -10,92 +9,103 @@ enum QueryType {
     MAX = '?'
 };
 
-struct Point {
-    int16_t column;
-    int16_t row;
-
-    Point();
-    Point(const int16_t columnValue, const int16_t rowValue);
-
-    void addShift() {
-        column += SHIFT;
-        row += SHIFT;
-    }
-};
-
-struct Rect {
-    Point start;
-    Point end;
-    Rect();
-};
-
-std::istream& operator>>(std::istream& istream, Point* point);
-std::istream& operator>>(std::istream& istream, Rect* rect);
-
-class SegmentTree2D {
+class SegmentTree2D{
 public:
     explicit SegmentTree2D(const std::vector<std::vector<int16_t>>& initialMatrix);
-    int16_t query(const Rect& rect) const;
-    void update(const Point& point, const int16_t newValue);
+
+    int16_t query(const int16_t fromColumn, const int16_t toColumn,
+        const int16_t fromRow, const int16_t toRow) const;
+
+    void update(const int16_t column, const int16_t row, const int16_t newValue);
+
     int16_t columnsSize() const;
+
     int16_t rowsSize() const;
+
 private:
     std::vector<std::vector<int16_t>> segmentTree2D;
     std::vector<std::vector<int16_t>> matrix;
 
-    struct Range {
-        int16_t lowBound;
-        int16_t upBound;
+    struct Point {
+        int16_t x;
+        int16_t y;
 
-        Range(const int16_t low, const int16_t up);
-        bool isEqual() const;
+        Point(const int16_t xValue, const int16_t yValue);
+    };
+
+    struct Rectangle {
+        Point bottomLeft;
+        Point topRight;
+
+        Rectangle(const Point& bottomLeftValue, const Point& topRightValue);
+    };
+
+    struct Range {
+        int16_t lowerBound;
+        int16_t upperBound;
+
+        Range(const int16_t lower, const int16_t upper);
+        bool checkForBoundsEquality() const;
         int16_t getMid() const;
     };
 
+    // builds segment tree along the first (x) axis.
     void build(std::vector<int16_t>* segmentTree,
         const std::vector<int16_t>& array,
         const int16_t index, const Range& range);
 
+    // builds final version of segment tree along the second (y) axis.
+    // call this function to build segment tree.
     void build2D(const int16_t index, const Range& range);
 
+    // finds maximum value in segment tree along the first (x) axis.
     int16_t query(const std::vector<int16_t>& segmentTree, const int16_t index,
         const Range& queryRange, const Range& fixedRange) const;
 
+    // finds maximum value in segment tree along the second (y) axis and returns final result.
+    // call this function to get maximum value in the rectangle.
     int16_t query2D(const int16_t index,
-        const Range& columnsRange, const Rect& rect) const;
+        const Range& columnsRange, const Rectangle& rect) const;
 
+    // updates segment tree along the first (x) axis.
     void update(const Range& columnRange,
-        const Range& rowRange, const Point& indexes,
+        const Range& rowRange, const int16_t indexX,
+        const int16_t indexY,
         const Point& point, const int16_t value);
 
+    // updates segment tree along the second (y) axis.
+    // call this function to update value in the tree.
     void update2D(const int16_t index, const Range& columnRange,
         const Point& point, const int16_t value);
 };
 
-struct AskQueryData {
-    Rect rect;
-
-    AskQueryData();
-    explicit AskQueryData(const Rect& rectValue);
+struct QueryData {
+    virtual QueryType getType() = 0;
 };
 
-struct UpdateQueryData {
-    Point point;
+struct MaxQueryData : public QueryData {
+    int16_t fromColumn, toColumn;
+    int16_t fromRow, toRow;
+
+    MaxQueryData(const int16_t fromColumnValue, const int16_t toColumnValue,
+        const int16_t fromRowValue, const int16_t toRowValue);
+
+    QueryType getType() override;
+};
+
+struct UpdateQueryData : public QueryData {
+    int16_t column, row;
     int16_t newValue;
 
-    UpdateQueryData();
-    UpdateQueryData(const Point& pointValue, const int16_t value);
-};
+    UpdateQueryData(const int16_t columnValue, const int16_t rowValue,
+        const int16_t value);
 
-struct QueryData {
-    QueryType type;
-    AskQueryData askQueryData;
-    UpdateQueryData updateQueryData;
+    QueryType getType() override;
 };
 
 struct MatrixQueryData {
     std::vector<std::vector<int16_t>> matrix;
-    std::vector<QueryData> queryData;
+    std::vector<QueryData*> queryData;
 
     MatrixQueryData(const int16_t columnsSize,
         const int16_t rowsSize, const int queriesSize);
@@ -105,7 +115,7 @@ MatrixQueryData readMatrixQueryData(std::istream& istream);
 std::vector<int16_t> findMaxValues(const MatrixQueryData& data);
 void writeMaxValues(std::ostream& ostream, const std::vector<int16_t>& values);
 
-int main() {
+int main(){
     std::cin.tie(nullptr);
     std::ios_base::sync_with_stdio(false);
     const MatrixQueryData data = readMatrixQueryData(std::cin);
