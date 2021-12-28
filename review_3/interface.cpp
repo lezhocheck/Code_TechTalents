@@ -17,7 +17,7 @@ struct Point {
     Point();
     Point(const int16_t columnValue, const int16_t rowValue);
 
-    void addShift(){
+    void addShift() {
         column += SHIFT;
         row += SHIFT;
     }
