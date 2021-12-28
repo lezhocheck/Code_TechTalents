@@ -51,8 +51,8 @@ private:
 
     // builds segment tree along the first (x) axis.
     void build(std::vector<int16_t>* segmentTree,
-               const std::vector<int16_t>& array,
-               const int16_t index, const Range& range);
+    const std::vector<int16_t>& array,
+    const int16_t index, const Range& range);
 
     // builds final version of segment tree along the second (y) axis.
     // call this function to build segment tree.
@@ -60,23 +60,21 @@ private:
 
     // finds maximum value in segment tree along the first (x) axis.
     int16_t query(const std::vector<int16_t>& segmentTree, const int16_t index,
-                  const Range& queryRange, const Range& fixedRange) const;
+    const Range& queryRange, const Range& fixedRange) const;
 
     // finds maximum value in segment tree along the second (y) axis and returns final result.
     // call this function to get maximum value in the rectangle.
-    int16_t query2D(const int16_t index,
-                    const Range& columnsRange, const Rectangle& rect) const;
+    int16_t query2D(const int16_t index, const Range& columnsRange, const Rectangle& rect) const;
 
     // updates segment tree along the first (x) axis.
     void update(const Range& columnRange,
-                const Range& rowRange, const int16_t indexX,
-                const int16_t indexY,
-                const Point& point, const int16_t value);
+    const Range& rowRange, const int16_t indexX,
+    const int16_t indexY, const Point& point, const int16_t value);
 
     // updates segment tree along the second (y) axis.
     // call this function to update value in the tree.
     void update2D(const int16_t index, const Range& columnRange,
-                  const Point& point, const int16_t value);
+    const Point& point, const int16_t value);
 };
 
 class QueryData {
