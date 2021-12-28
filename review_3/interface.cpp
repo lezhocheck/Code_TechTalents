@@ -32,7 +32,7 @@ struct Rect {
 std::istream& operator>>(std::istream& istream, Point* point);
 std::istream& operator>>(std::istream& istream, Rect* rect);
 
-class SegmentTree2D{
+class SegmentTree2D {
 public:
     explicit SegmentTree2D(const std::vector<std::vector<int16_t>>& initialMatrix);
     int16_t query(const Rect& rect) const;
