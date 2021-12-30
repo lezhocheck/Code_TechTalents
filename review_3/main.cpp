@@ -24,7 +24,7 @@ class SegmentTree2D{
         const Range range(0, columnsSize() - 1);
         const Rectangle rectangle = {Point(fromColumn, fromRow),
             Point(toColumn, toRow)};
-        const int16_t result = query2D(1, range,rectangle);
+        const int16_t result = query2D(1, range, rectangle);
 
         return result;
     }
@@ -34,7 +34,7 @@ class SegmentTree2D{
 
         const Range range(0, columnsSize() - 1);
         const Point point(column, row);
-        update2D(1, range,point, newValue);
+        update2D(1, range, point, newValue);
     }
 
     int16_t columnsSize() const {
@@ -119,7 +119,7 @@ class SegmentTree2D{
         if (range.checkForBoundsEquality()) {
             build(&segmentTree2D.at(index),
                   matrix.at(range.lowerBound), 1,
-                  Range(0, (int16_t)rowsSize() - 1));
+                  Range(0, rowsSize() - 1));
         } else {
             const int16_t medium = range.getMedium();
             build2D(2 * index, Range(range.lowerBound, medium));
