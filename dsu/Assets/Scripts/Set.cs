@@ -1,55 +1,73 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 public class Set
 {
-    private const string DISPLAY_PANEL = "SetsDisplayPanel";
-    public int Id { get; }
-    public List<SetItem> Items { get; }
-    public Text SetText { get; }
+    public int Id { get; private set; }
     public GameObject SetObject { get; }
     
-    private readonly ButtonsListener listener;
+    public bool IsSelected { get; set; }
 
-    public Set(int id, ButtonsListener listener)
+    private GameManager manager;
+
+    public Color Color
     {
-        Id = id;
-        Items = new List<SetItem>();
-        this.listener = listener;
-        SetObject = new GameObject($"set_{id}");
-        SetText = AddSetText(listener.SidePanelContent, listener.SetDisplayFont);
+        set => SetObject.GetComponent<SpriteRenderer>().color = value;
     }
 
-    private Text AddSetText(GameObject parent, Font font)
+    public Set(int id, Vector3 position, GameManager manager)
     {
-        GameObject textObj = new GameObject(SetObject.name, 
-            typeof(RectTransform), typeof(Text), typeof(Button));
+        Id = id;
+        this.manager = manager;
+        SetObject = AddItem(manager.SetItemPrefab, position);
+    }
+    
+    private GameObject AddItem(GameObject prefab, Vector3 position)
+    {
+        GameObject obj = Object.Instantiate(prefab);
+        obj.transform.position = position;
+        obj.name = $"set_{Id}";
+        SetItem item = obj.GetComponent<SetItem>();
+        item.manager = manager;
+        item.set = this;
+        TextMeshPro text = obj.GetComponentInChildren<TextMeshPro>();
+        text.text = Id.ToString();
+        return obj;
+    }
 
-        RectTransform transform = textObj.GetComponent<RectTransform>();
-        Text text = textObj.GetComponent<Text>();
-        Button button = textObj.GetComponent<Button>();
+    public Set Clone()
+    {
+        Set set = new Set(Id, SetObject.transform.position, manager);
+        return set;
+    }
 
-        RectTransform parentTransform = parent.GetComponent<RectTransform>();
-        parentTransform.sizeDelta = parentTransform.sizeDelta + new Vector2(0.0f, 40.0f);  
-        textObj.transform.SetParent(parent.transform, false);
-        
-        Vector2 parentSize = transform.parent.GetComponent<RectTransform>().rect.size;
-        transform.sizeDelta = new Vector2(parentSize.x - 40.0f, 40.0f);
-        transform.anchorMin = new Vector2(0.5f, 1.0f);
-        transform.anchorMax = transform.anchorMin;
-        transform.pivot = new Vector2(0.5f, 1.0f);
-        transform.localPosition -= new Vector3(0.0f, transform.rect.height * Id, 0.0f);  
-        
-        text.alignment = TextAnchor.MiddleLeft;
-        text.text = $"Set number {Id}";
-        text.font = font;
-        text.fontSize = 30;
-        text.color = Color.white;
-        
-        button.onClick.AddListener(() => listener.OnSetTextClick(this));
-        return text;
+    public void Hide()
+    {
+        SetObject.SetActive(false);
+    }
+
+    public void Show()
+    {
+        SetObject.SetActive(true);
+    }
+
+    private Dropbox AddSetText(GameObject parent, Font font)
+    {
+        RectTransform paRectTransform = parent.GetComponent<RectTransform>();
+        Dropbox dropBox = new Dropbox(this, paRectTransform);
+        return dropBox;
+    }
+
+    public void Delete()
+    {
+        Object.Destroy(SetObject);
+        Id = -1;
+        IsSelected = false;
+        manager = null;
     }
 }

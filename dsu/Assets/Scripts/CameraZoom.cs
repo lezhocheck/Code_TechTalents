@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 [RequireComponent(typeof(Camera))]
@@ -17,9 +18,16 @@ public class CameraZoom : MonoBehaviour
     [SerializeField]
     private MouseButtons mouseButton;
 
+    [Header("Movement settings")] 
+    [SerializeField]
+    private MeshRenderer grid;
+    
     private Camera cam;
     private Vector3 dragOrigin;
-    
+
+    private Vector2 gridMin;
+    private Vector2 gridMax;
+
     private enum MouseButtons
     {
         Left,
@@ -27,12 +35,17 @@ public class CameraZoom : MonoBehaviour
         Wheel
     }
     
-    void Start()
+    private void Start()
     {
         cam = gameObject.GetComponent<Camera>();
+
+        gridMin.x = grid.transform.position.x - grid.bounds.size.x / 2.0f;
+        gridMin.y = grid.transform.position.y - grid.bounds.size.y / 2.0f;        
+        gridMax.x =  grid.transform.position.x + grid.bounds.size.x / 2.0f;
+        gridMax.y =  grid.transform.position.y + grid.bounds.size.y / 2.0f;
     }
     
-    void Update()
+    private void Update()
     {
         float size = cam.orthographicSize;
         size -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity;
@@ -47,7 +60,18 @@ public class CameraZoom : MonoBehaviour
         if (Input.GetMouseButton((int)mouseButton))
         {
             Vector3 difference = dragOrigin - cam.ScreenToWorldPoint(Input.mousePosition);
-            cam.transform.position += difference;
+            cam.transform.position = ClampCamera(cam.transform.position + difference);   
         }
+    }
+
+    private Vector3 ClampCamera(Vector3 targetPosition)
+    {
+        Vector2 camParameters = new Vector2(cam.orthographicSize * cam.aspect, cam.orthographicSize);
+        Vector2 min = gridMin + camParameters;
+        Vector2 max = gridMax - camParameters;
+
+        float newX = Mathf.Clamp(targetPosition.x, min.x, max.x);
+        float newY = Mathf.Clamp(targetPosition.y, min.y, max.y);
+        return new Vector3(newX, newY, targetPosition.z);
     }
 }

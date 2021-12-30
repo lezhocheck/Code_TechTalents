@@ -2,17 +2,29 @@
 <project version="4">
   <component name="ContentModelStore">
     <e p="C:\Users\Олег\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\Олег\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_dsu.1484123068.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Олег\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_dsu.-2114019209.00" t="ExcludeRecursive" />
     <e p="C:\Users\Олег\AppData\Roaming\JetBrains\Rider2020.3\scratches" t="IncludeRecursive" />
-    <e p="D:\User_All\Unity projects\dsu" t="IncludeRecursive">
+    <e p="D:\User_All\GitHub\Code_TechTalents\dsu" t="IncludeRecursive">
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
+        <e p="Resources" t="Include">
+          <e p="Materials" t="Include">
+            <e p="GridOverlay.shader" t="Include" />
+          </e>
+        </e>
         <e p="Scripts" t="Include">
-          <e p="ButtonsListener.cs" t="Include" />
+          <e p="BoxSelection.cs" t="Include" />
           <e p="CameraZoom.cs" t="Include" />
+          <e p="Dropbox.cs" t="Include" />
           <e p="DSU.cs" t="Include" />
+          <e p="GameManager.cs" t="Include" />
+          <e p="Graph.cs" t="Include" />
+          <e p="Line.cs" t="Include" />
           <e p="Set.cs" t="Include" />
           <e p="SetItem.cs" t="Include" />
+          <e p="SetsController.cs" t="Include" />
+          <e p="UiButton.cs" t="Include" />
+          <e p="UiInput.cs" t="Include" />
         </e>
         <e p="TextMesh Pro" t="Include">
           <e p="Fonts" t="Include">
