@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 public class Graph
 {
@@ -58,10 +58,11 @@ public class Graph
     private readonly Sprite edgeSprite;
     private readonly Font textFont;
 
-    private Dictionary<Edge, Image> edgeLines;
-    private GameManager manager;
-    private Dsu dsu;
-    
+    private readonly Dictionary<Edge, Image> edgeLines;
+    private readonly GameManager manager;
+
+    private int step;
+
     public Graph(GameManager manager, int verticesCount, List<Edge> edges,
         Vector2 startPoint, float radius, RectTransform parent)
     {
@@ -85,22 +86,30 @@ public class Graph
         edgeSprite = Sprite.Create(text, new Rect(0f, 0f, text.width, text.height), Vector2.zero);
         textFont = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
         this.manager = manager;
-        dsu = new Dsu(manager);
+        manager.SetsController.AddNewVersion();
         edgeLines = new Dictionary<Edge, Image>();
     }
 
     public void Display()
     {
+        step = 0;
         DisplayVertices();
         DisplayEdges();
+        Vector3 screen = 
+            manager.MainCamera.ScreenToWorldPoint(
+            new Vector2(Screen.width / 4.0f, 
+            Screen.height / 2.0f));
+        screen.z = 0.0f;
+        InitialSpawn(screen);
     }
 
     public void Clear()
     {
         verticesTransform.Clear();
         edgeLines.Clear();
-        dsu.Clear();
+        manager.SetsController.ClearAll();
         edges.Clear();
+        step = 0;
         if (parent)
         {
             Object.Destroy(parent.gameObject);   
@@ -200,44 +209,73 @@ public class Graph
             180 * Mathf.Atan(dif.y / dif.x) / Mathf.PI));
     }
 
-    public void DisplayMst(Vector3 cameraPosition)
+    public void DisplayMst()
     {
-        List<Edge> list = Mst(cameraPosition);
+        List<Edge> list = Mst();
         foreach (var edge in list)
         {
             edgeLines[edge].color = Color.red;
         }
     }
-    
-    private List<Edge> Mst(Vector3 position)
-    {
-        for (int i = 0; i < verticesCount; i++)
-        {
-            float rX = Random.Range(0.0f, 2f);
-            float rY = Random.Range(0.0f, 2f);
-            Vector3 pos = new Vector3(position.x + rX, position.y + rY);
-            Set set = new Set(i, pos, manager);
-            dsu.AddNew(set);
-        }
 
-        List<Edge> sorted = new List<Edge>();
+    public void NextStepMst()
+    {
+        if (step >= edges.Count)
+        {
+            return;
+        }
+        step++;
+        List<Edge> result = DoStep(step);
+        foreach (var edge in result)
+        {
+            edgeLines[edge].color = Color.red;
+        }
+    }
+    
+    
+    private List<Edge> GetSorted()
+    {
+        List<Edge> sortedEdges = new List<Edge>();
         foreach (var edge in edges)
         {
-            sorted.Add(new Edge(edge.StartVertex, edge.EndVertex, edge.Weight));
+            sortedEdges.Add(new Edge(edge.StartVertex, edge.EndVertex, edge.Weight));
         }
-        sorted.Sort();
-        List<Edge> result = new List<Edge>();
-        foreach (var edge in sorted)
+        sortedEdges.Sort();
+        return sortedEdges;
+    }
+
+    private void InitialSpawn(Vector3 position)
+    {
+        position.x -= (verticesCount / 2.0f); 
+        for (int i = 0; i < verticesCount; i++)
         {
-            Set start = dsu.Items[edge.StartVertex].set;
-            Set finish = dsu.Items[edge.EndVertex].set;
+            Set set = new Set(i, position, manager);
+            position.x++;
+            manager.SetsController.Dsu.AddNew(set);
+        }  
+    }
+
+    private List<Edge> DoStep(int stepVersion)
+    {
+        List<Edge> sorted = GetSorted();
+        List<Edge> result = new List<Edge>();
+        Dsu dsu = manager.SetsController.Dsu;
+        for(int i = 0; i < stepVersion; i++)
+        {
+            Set start = dsu.Items[sorted[i].StartVertex].set;
+            Set finish = dsu.Items[sorted[i].EndVertex].set;
             if (dsu.Find(start).Id != dsu.Find(finish).Id)
             {
-                result.Add(edge);
+                result.Add(sorted[i]);
                 dsu.Union(start, finish);   
             }
         }
 
         return result;
+    }
+
+    private List<Edge> Mst()
+    {
+        return DoStep(edges.Count);
     }
 }

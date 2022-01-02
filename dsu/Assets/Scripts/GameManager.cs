@@ -144,56 +144,59 @@ public class GameManager : MonoBehaviour
     public void ModeChangeButtonClick()
     {
         unionButton.onClick.RemoveAllListeners();
-        backButton.onClick.RemoveAllListeners();
         forwardButton.onClick.RemoveAllListeners();
         normalMode = !normalMode;
+        RectTransform rect = forwardButton.GetComponent<RectTransform>();
         if (normalMode)
         {
             unionButton.GetComponentInChildren<Text>().text = "Union";
             unionButton.onClick.AddListener(UnionClick);
-            backButton.onClick.AddListener(PreviousClick);
             forwardButton.onClick.AddListener(NextClick);
             NormalButtonText.text = "Normal mode";
+            forwardButton.GetComponentInChildren<Text>().text = "->";
+            forwardButton.interactable = true;
+            unionButton.interactable = true;
+            rect.anchoredPosition = new Vector2(515f, -40f);
+            rect.sizeDelta = new Vector2(180f, 50f);
         }
         else
         {
             unionButton.GetComponentInChildren<Text>().text = "Find MST";
             unionButton.onClick.AddListener(FindMst);
-            backButton.onClick.AddListener(PreviousMstClick);
             forwardButton.onClick.AddListener(NextMstClick);
             NormalButtonText.text = "MST mode";
+            forwardButton.GetComponentInChildren<Text>().text = "Next step";
+            forwardButton.interactable = false;
+            unionButton.interactable = false;
+            rect.anchoredPosition = new Vector2(412.5f, -40f);
+            rect.sizeDelta = new Vector2(385f, 50f);
         }
         SidePanel.SetActive(!SidePanel.activeSelf);
         GraphPanel.SetActive(!GraphPanel.activeSelf);
+        backButton.gameObject.SetActive(!backButton.gameObject.activeSelf);
         verticesInput.text = "";
         edgesInput.text = "";
         graph?.Clear();
         SetsController.ClearAll();
     }
 
-    public void FindMst()
+    private void FindMst()
     {
-        graph.DisplayMst(
-            new Vector3(MainCamera.transform.position.x - 5f, 
-                MainCamera.transform.position.y, 0.0f));
+        graph.DisplayMst();
     }
 
-    public void NextMstClick()
+    private void NextMstClick()
     {
-        Debug.Log(1);
+        graph.NextStepMst();
     }
-
-    public void PreviousMstClick()
-    {
-        Debug.Log(1);
-    }
-
+    
     public void CreateButtonClick()
     {
         graph?.Clear();
         
         if (!Int32.TryParse(verticesInput.text, out int vertices) ||
-            verticesInput.text.Any(x=>Char.IsLetter(x)))
+            edgesInput.text.Any(x=>Char.IsLetter(x)) ||
+            vertices <= 1)
         {
             verticesInput.text = "";
             edgesInput.text = "";
@@ -211,6 +214,8 @@ public class GameManager : MonoBehaviour
             return;
         }
         
+        forwardButton.interactable = true;
+        unionButton.interactable = true;
         graph = new Graph(this, vertices, 
             edges, new Vector2(0.0f, 0.0f), 
             3, GraphContent.GetComponent<RectTransform>());
